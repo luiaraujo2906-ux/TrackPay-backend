@@ -1,5 +1,7 @@
 export interface PaymentProvider {
-  createPayment(data: { amount: number }): Promise<{
+  createPayment(data: {
+    amount: number;
+  }): Promise<{
     providerPaymentId: string;
     pixCode: string;
   }>;

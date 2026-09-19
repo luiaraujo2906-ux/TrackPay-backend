@@ -1,20 +1,21 @@
 import { db } from "../config/database";
-import type { Payment, PaymentStatus } from "../types/payment.types";
+import type { CreatePayment, Payment, PaymentStatus } from "../types/payment.types";
 
 export async function createPayment(
-  payment: Pick<Payment, "id" | "amount" | "status" | "pixCode">,
+  payment: CreatePayment,
 ): Promise<void> {
   await db.execute(
     `
       INSERT INTO payments (
         id,
+        provider_payment_id,
         amount,
         status,
         pix_code
       )
-      VALUES (?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?)
     `,
-    [payment.id, payment.amount, payment.status, payment.pixCode],
+    [payment.id, payment.providerPaymentId, payment.amount, payment.status, payment.pixCode],
   );
 }
 

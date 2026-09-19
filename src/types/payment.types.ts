@@ -8,10 +8,10 @@ export interface CreatePayment {
   amount: number;
   status: PaymentStatus;
   pixCode: string;
+  providerPaymentId: string;
 }
 
 export interface Payment extends CreatePayment {
-  providerPaymentId: string;
   createdAt: Date;
   updatedAt: Date;
 }

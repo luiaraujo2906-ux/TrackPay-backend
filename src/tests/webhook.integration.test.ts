@@ -18,6 +18,7 @@ describe("POST /webhooks/payment", () => {
       amount: 50,
       status: "PENDING",
       pixCode: "pix-code",
+      providerPaymentId: "provider-payment-123"
     });
 
     const response = await request(app).post("/webhooks/payment").send({
@@ -55,6 +56,7 @@ describe("POST /webhooks/payment", () => {
       amount: 50,
       status: "PENDING",
       pixCode: "text-pi-code",
+      providerPaymentId: "provider-payment-123"
     });
 
     const firstResponse = await request(app).post("/webhooks/payment").send({
@@ -111,6 +113,7 @@ describe("POST /webhooks/payment", () => {
       amount: 50,
       status: "PAID",
       pixCode: "pix-code",
+      providerPaymentId: "provider-payment-123"
     });
 
     const response = await request(app).post("/webhooks/payment").send({

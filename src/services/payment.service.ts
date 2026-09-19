@@ -1,9 +1,13 @@
 import crypto from "node:crypto";
 
-import { generatePixCode } from "./pix.service";
-import { generateQRCode } from "./qr-code.service";
+import {generateQRCode} from "./qr-code.service";
+
+import { FakePaymentProvider } from "../providers/fake-payment.provider";
 import * as paymentRepository from "../repositories/payment.repository";
+
 import type { PaymentStatus, CreatePayment } from "../types/payment.types";
+
+const paymentProvider = new FakePaymentProvider();
 
 interface CreatePixPaymentData {
   amount: number;
@@ -26,20 +30,25 @@ export function canTransitionPaymentStatus(
 export async function createPixPayment(data: CreatePixPaymentData) {
   const paymentId = crypto.randomUUID();
 
-  const pixCode = generatePixCode({
+  const providerPayment = await paymentProvider.createPayment({
     amount: data.amount,
   });
 
+  
   const paymentData: CreatePayment = {
     id: paymentId,
     amount: data.amount,
     status: "PENDING",
-    pixCode,
+    pixCode: providerPayment.pixCode,
+    providerPaymentId: providerPayment.providerPaymentId,
   };
-
+  
   await paymentRepository.createPayment(paymentData);
+  
+  const qrCode = await generateQRCode(providerPayment.pixCode);
 
-  const qrCode = await generateQRCode(pixCode);
-
-  return { ...paymentData, qrCode };
+  return {
+    ...paymentData,
+    qrCode
+  };
 }
