@@ -7,7 +7,9 @@ import { canTransitionPaymentStatus } from "./payment.service";
 type PaymentWebhookData = z.infer<typeof paymentWebhookSchema>;
 
 export async function processPaymentWebhook(data: PaymentWebhookData) {
-  const payment = await paymentRepository.findPaymentById(data.paymentId);
+  const payment = await paymentRepository.findPaymentByProviderId(
+    data.providerPaymentId,
+  );
 
   if (!payment) {
     throw new Error("Payment not found");
@@ -17,5 +19,5 @@ export async function processPaymentWebhook(data: PaymentWebhookData) {
     throw new Error("Invalid payment status transition");
   }
 
-  await paymentRepository.updatePaymentStatus(data.paymentId, data.status);
+  await paymentRepository.updatePaymentStatus(payment.id, data.status);
 }
