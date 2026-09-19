@@ -1,0 +1,73 @@
+import { db } from "../config/database";
+import type { Payment, PaymentStatus } from "../types/payment.types";
+
+export async function createPayment(
+  payment: Pick<Payment, "id" | "amount" | "status" | "pixCode">,
+): Promise<void> {
+  await db.execute(
+    `
+      INSERT INTO payments (
+        id,
+        amount,
+        status,
+        pix_code
+      )
+      VALUES (?, ?, ?, ?)
+    `,
+    [payment.id, payment.amount, payment.status, payment.pixCode],
+  );
+}
+
+export async function findPaymentById(id: string): Promise<Payment | null> {
+  const [rows] = await db.execute(
+    `
+      SELECT
+        id,
+        amount,
+        status,
+        pix_code AS pixCode,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+      FROM payments
+      WHERE id = ?
+    `,
+    [id],
+  );
+
+  const payments = rows as Payment[];
+
+  return payments[0] ?? null;
+}
+
+export async function updatePaymentStatus(
+  id: string,
+  status: string,
+): Promise<void> {
+  await db.execute(
+    `
+      UPDATE payments
+      SET
+        status = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `,
+    [status, id],
+  );
+}
+
+export async function getPaymentStatus(
+  paymentId: string,
+): Promise<PaymentStatus | null> {
+  const [rows] = await db.execute(
+    `
+      SELECT status
+      FROM payments
+      WHERE id = ?
+    `,
+    [paymentId],
+  );
+
+  const payments = rows as { status: PaymentStatus }[];
+
+  return payments[0]?.status ?? null;
+}

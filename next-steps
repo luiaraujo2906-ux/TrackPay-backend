@@ -1,0 +1,2 @@
+fake payment provider created.
+change payment.service.createPayment to use createPayment from fake provider.

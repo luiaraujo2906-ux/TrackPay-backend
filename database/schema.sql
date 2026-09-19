@@ -1,0 +1,15 @@
+CREATE DATABASE IF NOT EXISTS trackpay
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE trackpay;
+
+CREATE TABLE IF NOT EXISTS payments (
+    id CHAR(36) PRIMARY KEY,
+    amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    pix_code TEXT NOT NULL,
+    provider_payment_id VARCHAR(100) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

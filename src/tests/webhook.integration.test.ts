@@ -1,0 +1,131 @@
+import crypto from "node:crypto";
+import request from "supertest";
+import { describe, expect, it } from "vitest";
+
+import app from "../app";
+import {
+  createPayment,
+  findPaymentById,
+  getPaymentStatus,
+} from "../repositories/payment.repository";
+
+describe("POST /webhooks/payment", () => {
+  it("should update an existing payment status", async () => {
+    const paymentId = crypto.randomUUID();
+
+    await createPayment({
+      id: paymentId,
+      amount: 50,
+      status: "PENDING",
+      pixCode: "pix-code",
+    });
+
+    const response = await request(app).post("/webhooks/payment").send({
+      paymentId,
+      status: "PAID",
+    });
+
+    const payment = await findPaymentById(paymentId);
+
+    expect(response.status).toBe(200);
+    expect(payment).not.toBeNull();
+    expect(payment?.status).toBe("PAID");
+  });
+
+  it("should return 404 when payment does not exist", async () => {
+    const paymentId = crypto.randomUUID();
+
+    const response = await request(app).post("/webhooks/payment").send({
+      paymentId,
+      status: "PAID",
+    });
+
+    expect(response.status).toBe(404);
+
+    expect(response.body).toEqual({
+      message: "Payment not found",
+    });
+  });
+
+  it("should safely process the same webhook more than once", async () => {
+    const paymentId = crypto.randomUUID();
+
+    await createPayment({
+      id: paymentId,
+      amount: 50,
+      status: "PENDING",
+      pixCode: "text-pi-code",
+    });
+
+    const firstResponse = await request(app).post("/webhooks/payment").send({
+      paymentId,
+      status: "PAID",
+    });
+
+    const secondResponse = await request(app).post("/webhooks/payment").send({
+      paymentId,
+      status: "PAID",
+    });
+
+    expect(firstResponse.status).toBe(200);
+    expect(secondResponse.status).toBe(200);
+
+    const status = await getPaymentStatus(paymentId);
+
+    expect(status).toBe("PAID");
+  });
+
+  it("should return 400 when webhook payload is invalid", async () => {
+    const response = await request(app).post("/webhooks/payment").send({
+      paymentId: "invalid-id",
+      status: "INVALID_STATUS",
+    });
+
+    expect(response.status).toBe(400);
+
+    expect(response.body).toEqual({
+      message: "Invalid webhook payload",
+    });
+  });
+
+  it("should return 404 when payment does not exist", async () => {
+    const paymentId = crypto.randomUUID();
+
+    const response = await request(app).post("/webhooks/payment").send({
+      paymentId,
+      status: "PAID",
+    });
+
+    expect(response.status).toBe(404);
+
+    expect(response.body).toEqual({
+      message: "Payment not found",
+    });
+  });
+
+  it("should return 409 when payment status transition is invalid", async () => {
+    const paymentId = crypto.randomUUID();
+
+    await createPayment({
+      id: paymentId,
+      amount: 50,
+      status: "PAID",
+      pixCode: "pix-code",
+    });
+
+    const response = await request(app).post("/webhooks/payment").send({
+      paymentId,
+      status: "CANCELLED",
+    });
+
+    expect(response.status).toBe(409);
+
+    expect(response.body).toEqual({
+      message: "Invalid payment status transition",
+    });
+
+    const payment = await findPaymentById(paymentId);
+
+    expect(payment?.status).toBe("PAID");
+  });
+});
