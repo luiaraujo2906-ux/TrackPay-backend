@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { createPixPayment } from "../services/payment.service";
-import { findPaymentById } from "../repositories/payment.repository";
+import {
+  findPaymentById,
+  findPaymentByProviderId,
+  createPayment,
+} from "../repositories/payment.repository";
 
 describe("createPixPayment", () => {
   test("should create a pending Pix payment", async () => {

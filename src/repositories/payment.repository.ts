@@ -19,7 +19,9 @@ export async function createPayment(
   );
 }
 
-export async function findPaymentById(id: string): Promise<Payment | null> {
+export async function findPaymentById(
+  paymentId: string,
+): Promise<Payment | null> {
   const [rows] = await db.execute(
     `
       SELECT
@@ -27,12 +29,37 @@ export async function findPaymentById(id: string): Promise<Payment | null> {
         amount,
         status,
         pix_code AS pixCode,
+        provider_payment_id AS providerPaymentId,
         created_at AS createdAt,
         updated_at AS updatedAt
       FROM payments
       WHERE id = ?
     `,
-    [id],
+    [paymentId],
+  );
+
+  const payments = rows as Payment[];
+
+  return payments[0] ?? null;
+}
+
+export async function findPaymentByProviderId(
+  providerPaymentId: string,
+): Promise<Payment | null> {
+  const [rows] = await db.execute(
+    `
+      SELECT
+        id,
+        amount,
+        status,
+        pix_code AS pixCode,
+        provider_payment_id AS providerPaymentId,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+      FROM payments
+      WHERE provider_payment_id = ?
+    `,
+    [providerPaymentId],
   );
 
   const payments = rows as Payment[];
