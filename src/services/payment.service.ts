@@ -1,13 +1,13 @@
 import crypto from "node:crypto";
 
-import {generateQRCode} from "./qr-code.service";
+import { generateQRCode } from "./qr-code.service";
 
-import { FakePaymentProvider } from "../providers/fake-payment.provider";
+import { createPaymentProvider } from "../providers/payment-provider.factory";
 import * as paymentRepository from "../repositories/payment.repository";
 
 import type { PaymentStatus, CreatePayment } from "../types/payment.types";
 
-const paymentProvider = new FakePaymentProvider();
+const paymentProvider = createPaymentProvider();
 
 interface CreatePixPaymentData {
   amount: number;
@@ -34,7 +34,6 @@ export async function createPixPayment(data: CreatePixPaymentData) {
     amount: data.amount,
   });
 
-  
   const paymentData: CreatePayment = {
     id: paymentId,
     amount: data.amount,
@@ -42,13 +41,13 @@ export async function createPixPayment(data: CreatePixPaymentData) {
     pixCode: providerPayment.pixCode,
     providerPaymentId: providerPayment.providerPaymentId,
   };
-  
+
   await paymentRepository.createPayment(paymentData);
-  
+
   const qrCode = await generateQRCode(providerPayment.pixCode);
 
   return {
     ...paymentData,
-    qrCode
+    qrCode,
   };
 }

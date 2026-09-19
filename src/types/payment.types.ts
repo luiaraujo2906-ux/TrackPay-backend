@@ -15,3 +15,8 @@ export interface Payment extends CreatePayment {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface PaymentWebhookData {
+  providerPaymentId: string;
+  status: PaymentStatus;
+}

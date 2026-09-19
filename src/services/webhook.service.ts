@@ -1,10 +1,6 @@
-import { z } from "zod";
-
-import { paymentWebhookSchema } from "../schemas/webhook.schema";
+import type { PaymentWebhookData } from "../types/payment.types";
 import * as paymentRepository from "../repositories/payment.repository";
 import { canTransitionPaymentStatus } from "./payment.service";
-
-type PaymentWebhookData = z.infer<typeof paymentWebhookSchema>;
 
 export async function processPaymentWebhook(data: PaymentWebhookData) {
   const payment = await paymentRepository.findPaymentByProviderId(

@@ -49,22 +49,23 @@ describe("POST /webhooks/payment", () => {
 
   it("should safely process the same webhook more than once", async () => {
     const paymentId = crypto.randomUUID();
+    const providerPaymentId = crypto.randomUUID();
 
     await createPayment({
       id: paymentId,
       amount: 50,
       status: "PENDING",
       pixCode: "text-pi-code",
-      providerPaymentId: "provider-payment-123",
+      providerPaymentId,
     });
 
     const firstResponse = await request(app).post("/webhooks/payment").send({
-      providerPaymentId: "provider-payment-123",
+      providerPaymentId,
       status: "PAID",
     });
 
     const secondResponse = await request(app).post("/webhooks/payment").send({
-      providerPaymentId: "provider-payment-123",
+      providerPaymentId,
       status: "PAID",
     });
 
@@ -91,17 +92,18 @@ describe("POST /webhooks/payment", () => {
 
   it("should return 409 when payment status transition is invalid", async () => {
     const paymentId = crypto.randomUUID();
+    const providerPaymentId = crypto.randomUUID();
 
     await createPayment({
       id: paymentId,
       amount: 50,
       status: "PAID",
       pixCode: "pix-code",
-      providerPaymentId: "provider-payment-123",
+      providerPaymentId,
     });
 
     const response = await request(app).post("/webhooks/payment").send({
-      providerPaymentId: "provider-payment-123",
+      providerPaymentId,
       status: "CANCELLED",
     });
 
