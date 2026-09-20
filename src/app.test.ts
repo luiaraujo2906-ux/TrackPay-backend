@@ -8,25 +8,37 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+const fakePayload = {
+  amount: 50,
+  payer: {
+    email: "test@example.com",
+    identification: {
+      type: "CPF",
+      number: "12345678900",
+    },
+  },
+};
+
 describe("POST /payments/pix", () => {
   test("should create a Pix payment", async () => {
-    const response = await request(app).post("/payments/pix").send({
-      amount: 10,
-    });
+    const response = await request(app).post("/payments/pix").send(fakePayload);
 
     expect(response.status).toBe(201);
 
     expect(response.body.id).toBeDefined();
-    expect(response.body.amount).toBe(10);
+    expect(response.body.amount).toBe(fakePayload.amount);
     expect(response.body.status).toBe("PENDING");
     expect(response.body.pixCode).toBeDefined();
     expect(response.body.qrCode).toBeDefined();
   });
 
   test("should reject a negative amount", async () => {
-    const response = await request(app).post("/payments/pix").send({
-      amount: -10,
-    });
+    const response = await request(app)
+      .post("/payments/pix")
+      .send({
+        ...fakePayload,
+        amount: -10,
+      });
 
     expect(response.status).toBe(400);
 
@@ -61,9 +73,7 @@ test("should return 500 when payment creation fails", async () => {
     new Error("Database error"),
   );
 
-  const response = await request(app).post("/payments/pix").send({
-    amount: 10,
-  });
+  const response = await request(app).post("/payments/pix").send(fakePayload);
 
   expect(response.status).toBe(500);
 

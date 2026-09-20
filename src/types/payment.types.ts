@@ -16,6 +16,17 @@ export interface Payment extends CreatePayment {
   updatedAt: Date;
 }
 
+export interface CreatePixPaymentData {
+  amount: number;
+  payer: {
+    email: string;
+    identification: {
+      type: string;
+      number: string;
+    };
+  };
+}
+
 export interface PaymentWebhookData {
   providerPaymentId: string;
   status: PaymentStatus;

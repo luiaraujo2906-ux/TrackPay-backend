@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { createPixPaymentController } from "../controllers/payment.controller";
+import { handleCreatePayment } from "../controllers/payment.controller";
 
 const router = Router();
 
-router.post("/pix", createPixPaymentController);
+router.post("/pix", handleCreatePayment);
 
 // router.get("/", (req, res) => {
 //   const pix = test();

@@ -2,16 +2,16 @@ import crypto from "node:crypto";
 
 import { generateQRCode } from "./qr-code.service";
 
-import { createPaymentProvider } from "../providers/payment-provider.factory";
+import { createPaymentProvider } from "../providers/payment.provider";
 import * as paymentRepository from "../repositories/payment.repository";
 
-import type { PaymentStatus, CreatePayment } from "../types/payment.types";
+import type {
+  PaymentStatus,
+  CreatePayment,
+  CreatePixPaymentData,
+} from "../types/payment.types";
 
 const paymentProvider = createPaymentProvider();
-
-interface CreatePixPaymentData {
-  amount: number;
-}
 
 const allowedTransition: Record<PaymentStatus, PaymentStatus[]> = {
   PENDING: ["PAID", "EXPIRED", "CANCELLED"],
@@ -30,10 +30,14 @@ export function canTransitionPaymentStatus(
 export async function createPixPayment(data: CreatePixPaymentData) {
   const paymentId = crypto.randomUUID();
 
+  /* PROVIDER GENERATES PAYMENT */
   const providerPayment = await paymentProvider.createPayment({
     amount: data.amount,
+    payer: data.payer,
   });
+  /* ********** END *********** */
 
+  /* PERSIST ON DB AS PENDING*/
   const paymentData: CreatePayment = {
     id: paymentId,
     amount: data.amount,
@@ -43,11 +47,14 @@ export async function createPixPayment(data: CreatePixPaymentData) {
   };
 
   await paymentRepository.createPayment(paymentData);
+  /* ********** END *********** */
 
+  /* RETURN QR CODE & GENERATED PAYMENT DATA */
   const qrCode = await generateQRCode(providerPayment.pixCode);
 
   return {
     ...paymentData,
     qrCode,
   };
+  /* ********** END *********** */
 }

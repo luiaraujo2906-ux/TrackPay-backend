@@ -6,3 +6,15 @@ export const paymentStatusSchema = z.enum([
   "CANCELLED",
   "EXPIRED",
 ]);
+
+export const createPaymentSchema = z.object({
+  amount: z.number().positive("Amount must be a positive number"),
+
+  payer: z.object({
+    email: z.email(),
+    identification: z.object({
+      type: z.string().min(1),
+      number: z.string().min(1),
+    }),
+  }),
+});

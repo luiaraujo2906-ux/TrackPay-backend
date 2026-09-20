@@ -1,30 +1,24 @@
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
+
+import { createPaymentSchema } from "../schemas/payment.schema";
 import { createPixPayment } from "../services/payment.service";
 
-export async function createPixPaymentController(req: Request, res: Response) {
-  const { amount } = req.body ?? {};
+export async function handleCreatePayment(req: Request, res: Response) {
+  const result = createPaymentSchema.safeParse(req.body);
 
-  if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
-    return res.status(400).json({
-      message: "Amount must be a positive number",
-    });
-  }
+  if (!result.success) {
+    const firstError = result.error.issues[0];
 
-  if (!amount) {
     return res.status(400).json({
-      message: "Amount is required",
+      message: firstError?.message ?? "Invalid payment data",
     });
   }
 
   try {
-    const payment = await createPixPayment({
-      amount,
-    });
-
-    // console.log("New Payment:", payment, "\n");
+    const payment = await createPixPayment(result.data);
 
     return res.status(201).json(payment);
-  } catch (error: unknown) {
+  } catch (error) {
     return res.status(500).json({
       message: "Unable to create Pix payment",
     });
