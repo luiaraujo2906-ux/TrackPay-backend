@@ -1,6 +1,9 @@
+import crypto from "node:crypto";
+
 import { MercadoPagoConfig, Payment } from "mercadopago";
 
 import type { PaymentProvider } from "./payment.provider";
+import { CreatePixPaymentData } from "../types/payment.types";
 
 export class MercadoPagoPaymentProvider implements PaymentProvider {
   private readonly payment: Payment;
@@ -22,7 +25,28 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
     this.payment = new Payment(client);
   }
 
-  async createPayment(data: { amount: number }) {
-    throw new Error("Not implemented");
+  async createPayment(data: CreatePixPaymentData) {
+    const response = await this.payment.create({
+      body: {
+        transaction_amount: data.amount,
+        description: "TrackPay payment",
+        payment_method_id: "pix",
+        payer: {
+          email: data.payer.email,
+          identification: {
+            type: data.payer.identification.type,
+            number: data.payer.identification.number,
+          },
+        },
+      },
+      requestOptions: {
+        idempotencyKey: crypto.randomUUID(),
+      },
+    });
+
+    return {
+      providerPaymentId: String(response.id),
+      pixCode: response.point_of_interaction?.transaction_data?.qr_code ?? "",
+    };
   }
 }
