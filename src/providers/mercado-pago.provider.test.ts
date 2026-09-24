@@ -35,6 +35,7 @@ describe("MercadoPagoPaymentProvider", () => {
     const result = await provider.createPayment({
       amount: 50,
       payer: {
+        name: "Test",
         email: "test@example.com",
         identification: {
           type: "CPF",
@@ -64,6 +65,7 @@ describe("MercadoPagoPaymentProvider", () => {
     await provider.createPayment({
       amount: 50,
       payer: {
+        name: "Test",
         email: "test@example.com",
         identification: {
           type: "CPF",
@@ -106,6 +108,7 @@ describe("MercadoPagoPaymentProvider", () => {
     await provider.createPayment({
       amount: 50,
       payer: {
+        name: "Test",
         email: "test@example.com",
         identification: {
           type: "CPF",

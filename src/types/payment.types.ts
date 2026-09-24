@@ -19,6 +19,7 @@ export interface Payment extends CreatePayment {
 export interface CreatePixPaymentData {
   amount: number;
   payer: {
+    name: string;
     email: string;
     identification: {
       type: string;
