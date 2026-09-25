@@ -13,9 +13,6 @@ export const createPaymentSchema = z.object({
   payer: z.object({
     name: z.string().min(1),
     email: z.email(),
-    identification: z.object({
-      type: z.string().min(1),
-      number: z.string().min(1),
-    }),
+    document: z.string().min(1),
   }),
 });

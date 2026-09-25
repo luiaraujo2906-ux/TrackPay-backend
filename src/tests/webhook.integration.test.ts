@@ -9,8 +9,31 @@ import {
   getPaymentStatus,
 } from "../repositories/payment.repository";
 
+function createWebhookPayload(providerPaymentId: string) {
+  switch (process.env.PAYMENT_PROVIDER) {
+    case "asaas":
+      return {
+        id: crypto.randomUUID(),
+        event: "PAYMENT_RECEIVED",
+        payment: {
+          id: providerPaymentId,
+          status: "RECEIVED",
+        },
+      };
+
+    case "fake":
+      return {
+        providerPaymentId,
+        status: "PAID",
+      };
+
+    default:
+      throw new Error("Invalid payment provider");
+  }
+}
+
 describe("POST /webhooks/payment", () => {
-  it("should update an existing payment status", async () => {
+  it("should update an existing payment status when payment is received", async () => {
     const paymentId = crypto.randomUUID();
     const providerPaymentId = crypto.randomUUID();
 
@@ -22,10 +45,9 @@ describe("POST /webhooks/payment", () => {
       providerPaymentId,
     });
 
-    const response = await request(app).post("/webhooks/payment").send({
-      providerPaymentId,
-      status: "PAID",
-    });
+    const response = await request(app)
+      .post("/webhooks/payment")
+      .send(createWebhookPayload(providerPaymentId));
 
     const payment = await findPaymentById(paymentId);
 
@@ -35,10 +57,9 @@ describe("POST /webhooks/payment", () => {
   });
 
   it("should return 404 when payment does not exist", async () => {
-    const response = await request(app).post("/webhooks/payment").send({
-      providerPaymentId: "does-not-exist",
-      status: "PAID",
-    });
+    const response = await request(app)
+      .post("/webhooks/payment")
+      .send(createWebhookPayload("does-not-exist"));
 
     expect(response.status).toBe(404);
 
@@ -59,15 +80,15 @@ describe("POST /webhooks/payment", () => {
       providerPaymentId,
     });
 
-    const firstResponse = await request(app).post("/webhooks/payment").send({
-      providerPaymentId,
-      status: "PAID",
-    });
+    const webhook = createWebhookPayload(providerPaymentId);
 
-    const secondResponse = await request(app).post("/webhooks/payment").send({
-      providerPaymentId,
-      status: "PAID",
-    });
+    const firstResponse = await request(app)
+      .post("/webhooks/payment")
+      .send(webhook);
+
+    const secondResponse = await request(app)
+      .post("/webhooks/payment")
+      .send(webhook);
 
     expect(firstResponse.status).toBe(200);
     expect(secondResponse.status).toBe(200);
@@ -78,10 +99,34 @@ describe("POST /webhooks/payment", () => {
   });
 
   it("should return 400 when webhook payload is invalid", async () => {
-    const response = await request(app).post("/webhooks/payment").send({
-      providerPaymentId: "",
-      status: "INVALID_STATUS",
-    });
+    let invalidPayload;
+
+    switch (process.env.PAYMENT_PROVIDER) {
+      case "asaas":
+        invalidPayload = {
+          id: "",
+          event: "PAYMENT_RECEIVED",
+          payment: {
+            id: "",
+            status: "",
+          },
+        };
+        break;
+
+      case "fake":
+        invalidPayload = {
+          providerPaymentId: "",
+          status: "INVALID_STATUS",
+        };
+        break;
+
+      default:
+        throw new Error("Invalid payment provider");
+    }
+
+    const response = await request(app)
+      .post("/webhooks/payment")
+      .send(invalidPayload);
 
     expect(response.status).toBe(400);
 
@@ -97,15 +142,14 @@ describe("POST /webhooks/payment", () => {
     await createPayment({
       id: paymentId,
       amount: 50,
-      status: "PAID",
+      status: "EXPIRED",
       pixCode: "pix-code",
       providerPaymentId,
     });
 
-    const response = await request(app).post("/webhooks/payment").send({
-      providerPaymentId,
-      status: "CANCELLED",
-    });
+    const response = await request(app)
+      .post("/webhooks/payment")
+      .send(createWebhookPayload(providerPaymentId));
 
     expect(response.status).toBe(409);
 
@@ -115,6 +159,6 @@ describe("POST /webhooks/payment", () => {
 
     const payment = await findPaymentById(paymentId);
 
-    expect(payment?.status).toBe("PAID");
+    expect(payment?.status).toBe("EXPIRED");
   });
 });

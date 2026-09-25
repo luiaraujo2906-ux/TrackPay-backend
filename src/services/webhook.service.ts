@@ -1,6 +1,7 @@
-import type { PaymentWebhookData } from "../types/payment.types";
 import * as paymentRepository from "../repositories/payment.repository";
 import { canTransitionPaymentStatus } from "./payment.service";
+
+import type { PaymentWebhookData } from "../types/payment.types";
 
 export async function processPaymentWebhook(data: PaymentWebhookData) {
   const payment = await paymentRepository.findPaymentByProviderId(

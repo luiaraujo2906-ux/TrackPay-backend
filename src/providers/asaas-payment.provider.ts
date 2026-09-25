@@ -45,13 +45,11 @@ export class AsaasPaymentProvider implements PaymentProvider {
   }
 
   async createPayment(data: CreatePixPaymentData) {
-    const customer = await this.request<{
-      id: string;
-    }>("/customers", {
+    const customer = await this.request<{ id: string }>("/customers", {
       method: "POST",
       body: JSON.stringify({
         name: data.payer.name,
-        cpfCnpj: data.payer.identification.number,
+        cpfCnpj: data.payer.document,
         email: data.payer.email,
       }),
     });

@@ -7,10 +7,7 @@ const fakePayload = {
   payer: {
     name: "Cliente Teste",
     email: "test@example.com",
-    identification: {
-      type: "CPF",
-      number: "12345678900",
-    },
+    document: "12345678900",
   },
 };
 

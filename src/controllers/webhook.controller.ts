@@ -1,22 +1,24 @@
 import { Request, Response } from "express";
 
-import { paymentWebhookSchema } from "../schemas/webhook.schema";
+import { createWebhookProvider } from "../providers/webhook.provider";
 import { processPaymentWebhook } from "../services/webhook.service";
 
+const webhookProvider = createWebhookProvider();
+
 export async function handlePaymentWebhook(req: Request, res: Response) {
-  const result = paymentWebhookSchema.safeParse(req.body);
-
-  if (!result.success) {
-    return res.status(400).json({
-      message: "Invalid webhook payload",
-    });
-  }
-
   try {
-    await processPaymentWebhook(result.data);
+    const webhookData = webhookProvider.parseWebhook(req.body);
+
+    await processPaymentWebhook(webhookData);
 
     return res.sendStatus(200);
   } catch (error) {
+    if (error instanceof Error && error.message === "Invalid webhook payload") {
+      return res.status(400).json({
+        message: "Invalid webhook payload",
+      });
+    }
+
     if (error instanceof Error && error.message === "Payment not found") {
       return res.status(404).json({
         message: "Payment not found",

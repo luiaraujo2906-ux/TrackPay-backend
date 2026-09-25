@@ -7,10 +7,7 @@ const validPayload = {
   payer: {
     name: "Cliente Teste",
     email: "test@example.com",
-    identification: {
-      type: "CPF",
-      number: "52998224725",
-    },
+    document: "12312312312",
   },
 };
 
@@ -81,30 +78,13 @@ describe("createPaymentSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("should reject an empty identification type", () => {
+  it("should reject an empty document", () => {
     const result = createPaymentSchema.safeParse({
-      ...validPayload,
+      amount: 50,
       payer: {
-        ...validPayload.payer,
-        identification: {
-          ...validPayload.payer.identification,
-          type: "",
-        },
-      },
-    });
-
-    expect(result.success).toBe(false);
-  });
-
-  it("should reject an empty identification number", () => {
-    const result = createPaymentSchema.safeParse({
-      ...validPayload,
-      payer: {
-        ...validPayload.payer,
-        identification: {
-          ...validPayload.payer.identification,
-          number: "",
-        },
+        name: "Cliente Teste",
+        email: "test@example.com",
+        document: "",
       },
     });
 
