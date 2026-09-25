@@ -1,10 +1,10 @@
-import { CreatePixPaymentData } from "../types/payment.types";
+import { CreatePaymentData } from "../types/payment.types";
 import { FakePaymentProvider } from "./fake-payment.provider";
 import { MercadoPagoPaymentProvider } from "./mercado-pago.provider";
 import { AsaasPaymentProvider } from "./asaas-payment.provider";
 
 export interface PaymentProvider {
-  createPayment(data: CreatePixPaymentData): Promise<{
+  createPayment(data: CreatePaymentData): Promise<{
     providerPaymentId: string;
     pixCode: string;
   }>;

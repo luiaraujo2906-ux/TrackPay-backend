@@ -8,7 +8,7 @@ import * as paymentRepository from "../repositories/payment.repository";
 import type {
   PaymentStatus,
   CreatePayment,
-  CreatePixPaymentData,
+  CreatePaymentData,
 } from "../types/payment.types";
 
 const paymentProvider = createPaymentProvider();
@@ -27,7 +27,7 @@ export function canTransitionPaymentStatus(
   return allowedTransition[currentStatus].includes(newStatus);
 }
 
-export async function createPixPayment(data: CreatePixPaymentData) {
+export async function createPixPayment(data: CreatePaymentData) {
   const paymentId = crypto.randomUUID();
 
   /* PROVIDER GENERATES PAYMENT */

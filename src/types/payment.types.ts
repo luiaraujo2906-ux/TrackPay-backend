@@ -16,7 +16,7 @@ export interface Payment extends CreatePayment {
   updatedAt: Date;
 }
 
-export interface CreatePixPaymentData {
+export interface CreatePaymentData {
   amount: number;
 
   payer: {

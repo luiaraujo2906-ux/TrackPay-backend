@@ -1,39 +1,71 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { canTransitionPaymentStatus } from "./payment.service";
+import { createPixPayment } from "./payment.service";
+import * as paymentRepository from "../repositories/payment.repository";
 
 describe("canTransitionPaymentStatus", () => {
   /* ALLOWED TRANSITIONS */
-  test("should allow PENDING -> PAID", () => {
+  it("should allow PENDING -> PAID", () => {
     expect(canTransitionPaymentStatus("PENDING", "PAID")).toBe(true);
   });
 
-  test("should allow PENDING -> EXPIRED", () => {
+  it("should allow PENDING -> EXPIRED", () => {
     expect(canTransitionPaymentStatus("PENDING", "EXPIRED")).toBe(true);
   });
 
-  test("should allow PENDING -> CANCELLED", () => {
+  it("should allow PENDING -> CANCELLED", () => {
     expect(canTransitionPaymentStatus("PENDING", "CANCELLED")).toBe(true);
   });
 
-  test("should allow PAID -> PAID", () => {
+  it("should allow PAID -> PAID", () => {
     expect(canTransitionPaymentStatus("PAID", "PAID")).toBe(true);
   });
 
   /* REJECTED TRANSITIONS */
-  test("should reject PAID -> CANCELLED", () => {
+  it("should reject PAID -> CANCELLED", () => {
     expect(canTransitionPaymentStatus("PAID", "CANCELLED")).toBe(false);
   });
 
-  test("should reject PAID -> EXPIRED", () => {
+  it("should reject PAID -> EXPIRED", () => {
     expect(canTransitionPaymentStatus("PAID", "EXPIRED")).toBe(false);
   });
 
-  test("should reject CANCELLED -> PAID", () => {
+  it("should reject CANCELLED -> PAID", () => {
     expect(canTransitionPaymentStatus("CANCELLED", "PAID")).toBe(false);
   });
 
-  test("should reject EXPIRED -> PAID", () => {
+  it("should reject EXPIRED -> PAID", () => {
     expect(canTransitionPaymentStatus("EXPIRED", "PAID")).toBe(false);
+  });
+});
+
+describe("createPixPayment", () => {
+  it("should create and persist a payment", async () => {
+    vi.spyOn(paymentRepository, "createPayment").mockResolvedValue();
+
+    const result = await createPixPayment({
+      amount: 50,
+      payer: {
+        name: "Cliente Teste",
+        email: "test@example.com",
+        document: "12345678900",
+      },
+    });
+
+    expect(result.amount).toBe(50);
+    expect(result.status).toBe("PENDING");
+    expect(result.providerPaymentId).toBeDefined();
+    expect(result.pixCode).toBeDefined();
+    expect(result.qrCode).toBeDefined();
+
+    expect(paymentRepository.createPayment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 50,
+        status: "PENDING",
+        providerPaymentId: result.providerPaymentId,
+        pixCode: result.pixCode,
+      }),
+    );
   });
 });
