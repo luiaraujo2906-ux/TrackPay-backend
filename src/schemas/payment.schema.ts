@@ -8,7 +8,7 @@ export const paymentStatusSchema = z.enum([
 ]);
 
 export const createPaymentSchema = z.object({
-  amount: z.number().positive("Amount must be a positive number"),
+  amount: z.number().min(1, "Amount must be at least R$ 1.00"),
 
   payer: z.object({
     name: z.string().min(1),

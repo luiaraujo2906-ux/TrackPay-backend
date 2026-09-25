@@ -1,3 +1,4 @@
+import { CreatePixPaymentData } from "../types/payment.types";
 import type { PaymentProvider } from "./payment.provider";
 
 export class AsaasPaymentProvider implements PaymentProvider {
@@ -43,17 +44,7 @@ export class AsaasPaymentProvider implements PaymentProvider {
     return response.json() as Promise<T>;
   }
 
-  async createPayment(data: {
-    amount: number;
-    payer: {
-      name: string;
-      email: string;
-      identification: {
-        type: string;
-        number: string;
-      };
-    };
-  }) {
+  async createPayment(data: CreatePixPaymentData) {
     const customer = await this.request<{
       id: string;
     }>("/customers", {

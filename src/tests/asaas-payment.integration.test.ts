@@ -24,8 +24,6 @@ describe.skipIf(!shouldRunAsaasTests)(
 
       expect(result.providerPaymentId).toBeDefined();
       expect(result.pixCode).toBeDefined();
-
-      console.log(result);
     });
   },
 );

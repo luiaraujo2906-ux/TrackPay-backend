@@ -127,12 +127,20 @@
             },
 
             body: JSON.stringify({
-              amount: amount,
+              amount,
+              payer: {
+                name: "Testando via interface",
+                email: "test@example.com",
+                identification: {
+                  type: "CPF",
+                  number: "52998224725",
+                },
+              },
             }),
           });
 
           const data = await response.json();
-          console.log(data);
+          console.log("data", data);
 
           responseElement.innerHTML = `
             <div><strong>Status:</strong> ${data.status}</div>

@@ -43,7 +43,7 @@ describe("POST /payments/pix", () => {
 
     expect(response.status).toBe(400);
 
-    expect(response.body.message).toBe("Amount must be a positive number");
+    expect(response.body.message).toBe("Amount must be at least R$ 1.00");
   });
 
   test("should reject zero amount", async () => {
@@ -52,6 +52,15 @@ describe("POST /payments/pix", () => {
     });
 
     expect(response.status).toBe(400);
+  });
+
+  test("should reject an amount smaller than R$ 1.00", async () => {
+    const response = await request(app).post("/payments/pix").send({
+      amount: 0.99,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body?.message).toBe("Amount must be at least R$ 1.00");
   });
 
   test("should reject a string amount", async () => {
