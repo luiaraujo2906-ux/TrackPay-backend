@@ -4,11 +4,6 @@ import { createPaymentSchema } from "./payment.schema";
 
 const validPayload = {
   amount: 50,
-  payer: {
-    name: "Cliente Teste",
-    email: "test@example.com",
-    document: "12312312312",
-  },
 };
 
 describe("createPaymentSchema", () => {
@@ -54,37 +49,11 @@ describe("createPaymentSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("should reject an invalid email", () => {
-    const result = createPaymentSchema.safeParse({
-      ...validPayload,
-      payer: {
-        ...validPayload.payer,
-        email: "invalid-email",
-      },
-    });
-
-    expect(result.success).toBe(false);
-  });
-
-  it("should reject an empty payer name", () => {
-    const result = createPaymentSchema.safeParse({
-      ...validPayload,
-      payer: {
-        ...validPayload.payer,
-        name: "",
-      },
-    });
-
-    expect(result.success).toBe(false);
-  });
-
-  it("should reject an empty document", () => {
+  it("should reject unexpected payload fields", () => {
     const result = createPaymentSchema.safeParse({
       amount: 50,
       payer: {
         name: "Cliente Teste",
-        email: "test@example.com",
-        document: "",
       },
     });
 

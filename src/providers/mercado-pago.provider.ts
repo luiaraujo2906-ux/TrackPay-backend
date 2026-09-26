@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 
 import type { PaymentProvider } from "./payment.provider";
-import { CreatePixPaymentData } from "../types/payment.types";
+import type { CreatePaymentData } from "../types/payment.types";
 
 export class MercadoPagoPaymentProvider implements PaymentProvider {
   private readonly payment: Payment;
@@ -25,19 +25,12 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
     this.payment = new Payment(client);
   }
 
-  async createPayment(data: CreatePixPaymentData) {
+  async createPayment(data: CreatePaymentData) {
     const response = await this.payment.create({
       body: {
         transaction_amount: data.amount,
         description: "TrackPay payment",
         payment_method_id: "pix",
-        payer: {
-          email: data.payer.email,
-          identification: {
-            type: data.payer.identification.type,
-            number: data.payer.identification.number,
-          },
-        },
       },
       requestOptions: {
         idempotencyKey: crypto.randomUUID(),
@@ -45,7 +38,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
     });
 
     return {
-      providerPaymentId: String(response.id),
+      providerQrCodeId: String(response.id),
       pixCode: response.point_of_interaction?.transaction_data?.qr_code ?? "",
     };
   }

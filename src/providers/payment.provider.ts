@@ -5,7 +5,7 @@ import { AsaasPaymentProvider } from "./asaas-payment.provider";
 
 export interface PaymentProvider {
   createPayment(data: CreatePaymentData): Promise<{
-    providerPaymentId: string;
+    providerQrCodeId: string;
     pixCode: string;
   }>;
 }

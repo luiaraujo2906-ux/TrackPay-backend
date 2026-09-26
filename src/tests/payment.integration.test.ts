@@ -4,14 +4,6 @@ import { findPaymentById } from "../repositories/payment.repository";
 
 const fakePayload = {
   amount: 50,
-  payer: {
-    name: "Cliente Teste",
-    email: "test@example.com",
-    identification: {
-      type: "CPF",
-      number: "12345678900",
-    },
-  },
 };
 
 describe("createPixPayment", () => {

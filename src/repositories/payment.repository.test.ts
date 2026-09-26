@@ -1,29 +1,32 @@
 import crypto from "node:crypto";
 import { test, describe, expect } from "vitest";
-import { createPayment, findPaymentByProviderId } from "./payment.repository";
+import {
+  createPayment,
+  findPaymentByProviderQrCodeId,
+} from "./payment.repository";
 
 describe("createPayment", () => {
-  test("should find a payment by provider payment id", async () => {
+  test("should find a payment by provider QR code id", async () => {
     const paymentId = crypto.randomUUID();
-    const providerPaymentId = crypto.randomUUID();
+    const providerQrCodeId = crypto.randomUUID();
 
     await createPayment({
       id: paymentId,
       amount: 50,
       status: "PENDING",
       pixCode: "pix-code",
-      providerPaymentId,
+      providerQrCodeId,
     });
 
-    const payment = await findPaymentByProviderId(providerPaymentId);
+    const payment = await findPaymentByProviderQrCodeId(providerQrCodeId);
 
     expect(payment).not.toBeNull();
     expect(payment?.id).toBe(paymentId);
-    expect(payment?.providerPaymentId).toBe(providerPaymentId);
+    expect(payment?.providerQrCodeId).toBe(providerQrCodeId);
   });
 
-  test("should return null when provider payment id does not exist", async () => {
-    const payment = await findPaymentByProviderId("does-not-exist");
+  test("should return null when provider QR code id does not exist", async () => {
+    const payment = await findPaymentByProviderQrCodeId("does-not-exist");
 
     expect(payment).toBeNull();
   });

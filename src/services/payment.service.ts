@@ -30,31 +30,24 @@ export function canTransitionPaymentStatus(
 export async function createPixPayment(data: CreatePaymentData) {
   const paymentId = crypto.randomUUID();
 
-  /* PROVIDER GENERATES PAYMENT */
   const providerPayment = await paymentProvider.createPayment({
     amount: data.amount,
-    payer: data.payer,
   });
-  /* ********** END *********** */
 
-  /* PERSIST ON DB AS PENDING*/
   const paymentData: CreatePayment = {
     id: paymentId,
     amount: data.amount,
     status: "PENDING",
     pixCode: providerPayment.pixCode,
-    providerPaymentId: providerPayment.providerPaymentId,
+    providerQrCodeId: providerPayment.providerQrCodeId,
   };
 
   await paymentRepository.createPayment(paymentData);
-  /* ********** END *********** */
 
-  /* RETURN QR CODE & GENERATED PAYMENT DATA */
   const qrCode = await generateQRCode(providerPayment.pixCode);
 
   return {
     ...paymentData,
     qrCode,
   };
-  /* ********** END *********** */
 }

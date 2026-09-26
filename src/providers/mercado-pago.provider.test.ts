@@ -34,18 +34,10 @@ describe("MercadoPagoPaymentProvider", () => {
 
     const result = await provider.createPayment({
       amount: 50,
-      payer: {
-        name: "Test",
-        email: "test@example.com",
-        identification: {
-          type: "CPF",
-          number: "12345678900",
-        },
-      },
     });
 
     expect(result).toEqual({
-      providerPaymentId: "123456",
+      providerQrCodeId: "123456",
       pixCode: "pix-code-123",
     });
   });
@@ -64,14 +56,6 @@ describe("MercadoPagoPaymentProvider", () => {
 
     await provider.createPayment({
       amount: 50,
-      payer: {
-        name: "Test",
-        email: "test@example.com",
-        identification: {
-          type: "CPF",
-          number: "12345678900",
-        },
-      },
     });
 
     expect(createMock).toHaveBeenCalledTimes(1);
@@ -83,13 +67,6 @@ describe("MercadoPagoPaymentProvider", () => {
       transaction_amount: 50,
       description: "TrackPay payment",
       payment_method_id: "pix",
-      payer: {
-        email: "test@example.com",
-        identification: {
-          type: "CPF",
-          number: "12345678900",
-        },
-      },
     });
   });
 
@@ -107,14 +84,6 @@ describe("MercadoPagoPaymentProvider", () => {
 
     await provider.createPayment({
       amount: 50,
-      payer: {
-        name: "Test",
-        email: "test@example.com",
-        identification: {
-          type: "CPF",
-          number: "12345678900",
-        },
-      },
     });
 
     const request = createMock.mock.calls[0]?.[0];

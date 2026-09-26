@@ -1,13 +1,15 @@
-import { CreatePixPaymentData } from "../types/payment.types";
+import { CreatePaymentData } from "../types/payment.types";
 import type { PaymentProvider } from "./payment.provider";
 
 export class AsaasPaymentProvider implements PaymentProvider {
   private readonly apiUrl: string;
   private readonly apiKey: string;
+  private readonly pixKey: string;
 
   constructor() {
     const apiUrl = process.env.ASAAS_API_URL;
     const apiKey = process.env.ASAAS_API_KEY;
+    const pixKey = process.env.PIX_KEY;
 
     if (!apiUrl) {
       throw new Error("ASAAS_API_URL is not defined");
@@ -17,8 +19,13 @@ export class AsaasPaymentProvider implements PaymentProvider {
       throw new Error("ASAAS_API_KEY is not defined");
     }
 
+    if (!pixKey) {
+      throw new Error("PIX_KEY is not defined");
+    }
+
     this.apiUrl = apiUrl;
     this.apiKey = apiKey;
+    this.pixKey = pixKey;
   }
 
   private async request<T>(
@@ -44,36 +51,23 @@ export class AsaasPaymentProvider implements PaymentProvider {
     return response.json() as Promise<T>;
   }
 
-  async createPayment(data: CreatePixPaymentData) {
-    const customer = await this.request<{ id: string }>("/customers", {
-      method: "POST",
-      body: JSON.stringify({
-        name: data.payer.name,
-        cpfCnpj: data.payer.document,
-        email: data.payer.email,
-      }),
-    });
-
-    const payment = await this.request<{
+  async createPayment(data: CreatePaymentData) {
+    const qrCode = await this.request<{
       id: string;
-    }>("/payments", {
+      payload: string;
+    }>("/pix/qrCodes/static", {
       method: "POST",
       body: JSON.stringify({
-        customer: customer.id,
-        billingType: "PIX",
+        addressKey: this.pixKey,
         value: data.amount,
-        dueDate: new Date().toISOString().split("T")[0],
-        description: "TrackPay payment",
+        format: "PAYLOAD",
+        allowsMultiplePayments: false,
       }),
     });
-
-    const pixQrCode = await this.request<{
-      payload: string;
-    }>(`/payments/${payment.id}/pixQrCode`);
 
     return {
-      providerPaymentId: payment.id,
-      pixCode: pixQrCode.payload,
+      providerQrCodeId: qrCode.id,
+      pixCode: qrCode.payload,
     };
   }
 }

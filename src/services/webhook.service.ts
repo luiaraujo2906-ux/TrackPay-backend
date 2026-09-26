@@ -4,8 +4,8 @@ import { canTransitionPaymentStatus } from "./payment.service";
 import type { PaymentWebhookData } from "../types/payment.types";
 
 export async function processPaymentWebhook(data: PaymentWebhookData) {
-  const payment = await paymentRepository.findPaymentByProviderId(
-    data.providerPaymentId,
+  const payment = await paymentRepository.findPaymentByProviderQrCodeId(
+    data.providerQrCodeId,
   );
 
   if (!payment) {

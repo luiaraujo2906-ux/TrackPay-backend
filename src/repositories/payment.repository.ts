@@ -1,21 +1,29 @@
 import { db } from "../config/database";
-import type { CreatePayment, Payment, PaymentStatus } from "../types/payment.types";
+import type {
+  CreatePayment,
+  Payment,
+  PaymentStatus,
+} from "../types/payment.types";
 
-export async function createPayment(
-  payment: CreatePayment,
-): Promise<void> {
+export async function createPayment(payment: CreatePayment): Promise<void> {
   await db.execute(
     `
       INSERT INTO payments (
         id,
-        provider_payment_id,
+        provider_qr_code_id,
         amount,
         status,
         pix_code
       )
       VALUES (?, ?, ?, ?, ?)
     `,
-    [payment.id, payment.providerPaymentId, payment.amount, payment.status, payment.pixCode],
+    [
+      payment.id,
+      payment.providerQrCodeId,
+      payment.amount,
+      payment.status,
+      payment.pixCode,
+    ],
   );
 }
 
@@ -29,7 +37,7 @@ export async function findPaymentById(
         amount,
         status,
         pix_code AS pixCode,
-        provider_payment_id AS providerPaymentId,
+        provider_qr_code_id AS providerQrCodeId,
         created_at AS createdAt,
         updated_at AS updatedAt
       FROM payments
@@ -43,8 +51,8 @@ export async function findPaymentById(
   return payments[0] ?? null;
 }
 
-export async function findPaymentByProviderId(
-  providerPaymentId: string,
+export async function findPaymentByProviderQrCodeId(
+  providerQrCodeId: string,
 ): Promise<Payment | null> {
   const [rows] = await db.execute(
     `
@@ -53,18 +61,24 @@ export async function findPaymentByProviderId(
         amount,
         status,
         pix_code AS pixCode,
-        provider_payment_id AS providerPaymentId,
+        provider_qr_code_id AS providerQrCodeId,
         created_at AS createdAt,
         updated_at AS updatedAt
       FROM payments
-      WHERE provider_payment_id = ?
+      WHERE provider_qr_code_id = ?
     `,
-    [providerPaymentId],
+    [providerQrCodeId],
   );
 
   const payments = rows as Payment[];
 
   return payments[0] ?? null;
+}
+
+export async function findPaymentByProviderId(
+  providerQrCodeId: string,
+): Promise<Payment | null> {
+  return findPaymentByProviderQrCodeId(providerQrCodeId);
 }
 
 export async function updatePaymentStatus(

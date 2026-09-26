@@ -9,21 +9,22 @@ import {
   getPaymentStatus,
 } from "../repositories/payment.repository";
 
-function createWebhookPayload(providerPaymentId: string) {
+function createWebhookPayload(providerQrCodeId: string) {
   switch (process.env.PAYMENT_PROVIDER) {
     case "asaas":
       return {
         id: crypto.randomUUID(),
         event: "PAYMENT_RECEIVED",
         payment: {
-          id: providerPaymentId,
+          id: "pay_" + crypto.randomUUID(),
+          qrCodeId: providerQrCodeId,
           status: "RECEIVED",
         },
       };
 
     case "fake":
       return {
-        providerPaymentId,
+        providerQrCodeId,
         status: "PAID",
       };
 
@@ -35,19 +36,19 @@ function createWebhookPayload(providerPaymentId: string) {
 describe("POST /webhooks/payment", () => {
   it("should update an existing payment status when payment is received", async () => {
     const paymentId = crypto.randomUUID();
-    const providerPaymentId = crypto.randomUUID();
+    const providerQrCodeId = crypto.randomUUID();
 
     await createPayment({
       id: paymentId,
       amount: 50,
       status: "PENDING",
       pixCode: "pix-code",
-      providerPaymentId,
+      providerQrCodeId,
     });
 
     const response = await request(app)
       .post("/webhooks/payment")
-      .send(createWebhookPayload(providerPaymentId));
+      .send(createWebhookPayload(providerQrCodeId));
 
     const payment = await findPaymentById(paymentId);
 
@@ -70,17 +71,17 @@ describe("POST /webhooks/payment", () => {
 
   it("should safely process the same webhook more than once", async () => {
     const paymentId = crypto.randomUUID();
-    const providerPaymentId = crypto.randomUUID();
+    const providerQrCodeId = crypto.randomUUID();
 
     await createPayment({
       id: paymentId,
       amount: 50,
       status: "PENDING",
       pixCode: "text-pi-code",
-      providerPaymentId,
+      providerQrCodeId,
     });
 
-    const webhook = createWebhookPayload(providerPaymentId);
+    const webhook = createWebhookPayload(providerQrCodeId);
 
     const firstResponse = await request(app)
       .post("/webhooks/payment")
@@ -115,7 +116,7 @@ describe("POST /webhooks/payment", () => {
 
       case "fake":
         invalidPayload = {
-          providerPaymentId: "",
+          providerQrCodeId: "",
           status: "INVALID_STATUS",
         };
         break;
@@ -137,19 +138,19 @@ describe("POST /webhooks/payment", () => {
 
   it("should return 409 when payment status transition is invalid", async () => {
     const paymentId = crypto.randomUUID();
-    const providerPaymentId = crypto.randomUUID();
+    const providerQrCodeId = crypto.randomUUID();
 
     await createPayment({
       id: paymentId,
       amount: 50,
       status: "EXPIRED",
       pixCode: "pix-code",
-      providerPaymentId,
+      providerQrCodeId,
     });
 
     const response = await request(app)
       .post("/webhooks/payment")
-      .send(createWebhookPayload(providerPaymentId));
+      .send(createWebhookPayload(providerQrCodeId));
 
     expect(response.status).toBe(409);
 

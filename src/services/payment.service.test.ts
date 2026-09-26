@@ -46,16 +46,11 @@ describe("createPixPayment", () => {
 
     const result = await createPixPayment({
       amount: 50,
-      payer: {
-        name: "Cliente Teste",
-        email: "test@example.com",
-        document: "12345678900",
-      },
     });
 
     expect(result.amount).toBe(50);
     expect(result.status).toBe("PENDING");
-    expect(result.providerPaymentId).toBeDefined();
+    expect(result.providerQrCodeId).toBeDefined();
     expect(result.pixCode).toBeDefined();
     expect(result.qrCode).toBeDefined();
 
@@ -63,7 +58,7 @@ describe("createPixPayment", () => {
       expect.objectContaining({
         amount: 50,
         status: "PENDING",
-        providerPaymentId: result.providerPaymentId,
+        providerQrCodeId: result.providerQrCodeId,
         pixCode: result.pixCode,
       }),
     );

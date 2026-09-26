@@ -12,17 +12,9 @@ describe.skipIf(!shouldRunAsaasTests)(
 
       const result = await provider.createPayment({
         amount: 50,
-        payer: {
-          name: "Cliente Teste",
-          email: "test@example.com",
-          identification: {
-            type: "CPF",
-            number: "52998224725",
-          },
-        },
       });
 
-      expect(result.providerPaymentId).toBeDefined();
+      expect(result.providerQrCodeId).toBeDefined();
       expect(result.pixCode).toBeDefined();
     });
   },

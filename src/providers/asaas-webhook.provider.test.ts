@@ -5,18 +5,19 @@ import { AsaasWebhookProvider } from "./asaas-webhook.provider";
 describe("AsaasWebhookProvider", () => {
   const provider = new AsaasWebhookProvider();
 
-  it("should convert PAYMENT_RECEIVED into PAID", () => {
+  it("should convert PAYMENT_RECEIVED into PAID using the QR Code identifier", () => {
     const result = provider.parseWebhook({
       id: "evt_123",
       event: "PAYMENT_RECEIVED",
       payment: {
         id: "pay_123",
+        qrCodeId: "qr_456",
         status: "RECEIVED",
       },
     });
 
     expect(result).toEqual({
-      providerPaymentId: "pay_123",
+      providerQrCodeId: "qr_456",
       status: "PAID",
     });
   });
@@ -28,6 +29,7 @@ describe("AsaasWebhookProvider", () => {
         event: "PAYMENT_RECEIVED",
         payment: {
           id: "pay_123",
+          qrCodeId: "qr_456",
           status: "RECEIVED",
         },
       }),
@@ -41,6 +43,7 @@ describe("AsaasWebhookProvider", () => {
         event: "PAYMENT_CREATED",
         payment: {
           id: "pay_123",
+          qrCodeId: "qr_456",
           status: "PENDING",
         },
       }),

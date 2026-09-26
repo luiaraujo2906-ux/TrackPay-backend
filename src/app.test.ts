@@ -10,11 +10,6 @@ afterEach(() => {
 
 const fakePayload = {
   amount: 50,
-  payer: {
-    name: "Cliente Teste",
-    email: "test@example.com",
-    document: "12312312312",
-  },
 };
 
 describe("POST /payments/pix", () => {
