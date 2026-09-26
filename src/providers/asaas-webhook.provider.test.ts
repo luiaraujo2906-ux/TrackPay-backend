@@ -11,7 +11,7 @@ describe("AsaasWebhookProvider", () => {
       event: "PAYMENT_RECEIVED",
       payment: {
         id: "pay_123",
-        qrCodeId: "qr_456",
+        pixQrCodeId: "qr_456",
         status: "RECEIVED",
       },
     });
@@ -29,7 +29,7 @@ describe("AsaasWebhookProvider", () => {
         event: "PAYMENT_RECEIVED",
         payment: {
           id: "pay_123",
-          qrCodeId: "qr_456",
+          pixQrCodeId: "qr_456",
           status: "RECEIVED",
         },
       }),
@@ -40,10 +40,10 @@ describe("AsaasWebhookProvider", () => {
     expect(() =>
       provider.parseWebhook({
         id: "evt_123",
-        event: "PAYMENT_CREATED",
+        event: "INVALID_EVENT",
         payment: {
           id: "pay_123",
-          qrCodeId: "qr_456",
+          pixQrCodeId: "qr_456",
           status: "PENDING",
         },
       }),

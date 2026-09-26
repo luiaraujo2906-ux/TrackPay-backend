@@ -11,21 +11,19 @@ export class AsaasWebhookProvider implements WebhookProvider {
       throw new Error("Invalid webhook payload");
     }
 
-    const payment = result.data.payment;
-    const providerQrCodeId =
-      payment.qrCodeId ?? payment.pixQrCode?.id ?? payment.id;
+    const { event, payment } = result.data;
 
     if (
-      result.data.event === "PAYMENT_RECEIVED" &&
-      payment.status === "RECEIVED" &&
-      providerQrCodeId
+      event !== "PAYMENT_RECEIVED" ||
+      payment.status !== "RECEIVED" ||
+      !payment.pixQrCodeId
     ) {
-      return {
-        providerQrCodeId,
-        status: "PAID",
-      };
+      throw new Error("Unsupported webhook event");
     }
 
-    throw new Error("Unsupported webhook event");
+    return {
+      providerQrCodeId: payment.pixQrCodeId,
+      status: "PAID",
+    };
   }
 }

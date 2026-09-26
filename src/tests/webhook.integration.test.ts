@@ -17,7 +17,7 @@ function createWebhookPayload(providerQrCodeId: string) {
         event: "PAYMENT_RECEIVED",
         payment: {
           id: "pay_" + crypto.randomUUID(),
-          qrCodeId: providerQrCodeId,
+          pixQrCodeId: providerQrCodeId,
           status: "RECEIVED",
         },
       };

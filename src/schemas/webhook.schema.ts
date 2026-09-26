@@ -14,12 +14,7 @@ export const asaasWebhookSchema = z.object({
     .object({
       id: z.string().min(1),
       status: z.string().min(1),
-      qrCodeId: z.string().min(1).optional(),
-      pixQrCode: z
-        .object({
-          id: z.string().min(1),
-        })
-        .optional(),
+      pixQrCodeId: z.string().min(1).optional(),
     })
     .passthrough(),
 });
