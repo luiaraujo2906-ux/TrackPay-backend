@@ -38,7 +38,7 @@ export class MercadoPagoPaymentProvider implements PaymentProvider {
     });
 
     return {
-      providerQrCodeId: String(response.id),
+      providerReference: String(response.id),
       pixCode: response.point_of_interaction?.transaction_data?.qr_code ?? "",
     };
   }

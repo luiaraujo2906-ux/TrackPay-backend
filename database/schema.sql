@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS payments (
     amount DECIMAL(10, 2) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     pix_code TEXT NOT NULL,
-    provider_qr_code_id VARCHAR(100) NOT NULL,
+    provider_reference VARCHAR(100) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (provider_qr_code_id)
+    UNIQUE (provider_reference)
 );

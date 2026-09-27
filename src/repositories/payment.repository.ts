@@ -10,19 +10,19 @@ export async function createPayment(payment: CreatePayment): Promise<void> {
     `
       INSERT INTO payments (
         id,
-        provider_qr_code_id,
         amount,
         status,
-        pix_code
+        pix_code,
+        provider_reference
       )
       VALUES (?, ?, ?, ?, ?)
     `,
     [
       payment.id,
-      payment.providerQrCodeId,
       payment.amount,
       payment.status,
       payment.pixCode,
+      payment.providerReference,
     ],
   );
 }
@@ -37,7 +37,7 @@ export async function findPaymentById(
         amount,
         status,
         pix_code AS pixCode,
-        provider_qr_code_id AS providerQrCodeId,
+        provider_reference AS providerReference,
         created_at AS createdAt,
         updated_at AS updatedAt
       FROM payments
@@ -51,8 +51,8 @@ export async function findPaymentById(
   return payments[0] ?? null;
 }
 
-export async function findPaymentByProviderQrCodeId(
-  providerQrCodeId: string,
+export async function findPaymentByProviderReference(
+  providerReference: string,
 ): Promise<Payment | null> {
   const [rows] = await db.execute(
     `
@@ -61,13 +61,13 @@ export async function findPaymentByProviderQrCodeId(
         amount,
         status,
         pix_code AS pixCode,
-        provider_qr_code_id AS providerQrCodeId,
+        provider_reference AS providerReference,
         created_at AS createdAt,
         updated_at AS updatedAt
       FROM payments
-      WHERE provider_qr_code_id = ?
+      WHERE provider_reference = ?
     `,
-    [providerQrCodeId],
+    [providerReference],
   );
 
   const payments = rows as Payment[];
@@ -76,9 +76,9 @@ export async function findPaymentByProviderQrCodeId(
 }
 
 export async function findPaymentByProviderId(
-  providerQrCodeId: string,
+  providerReference: string,
 ): Promise<Payment | null> {
-  return findPaymentByProviderQrCodeId(providerQrCodeId);
+  return findPaymentByProviderReference(providerReference);
 }
 
 export async function updatePaymentStatus(

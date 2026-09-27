@@ -6,14 +6,14 @@ import type { CreatePaymentData } from "../types/payment.types";
 
 export class FakePaymentProvider implements PaymentProvider {
   async createPayment(data: CreatePaymentData) {
-    const providerQrCodeId = crypto.randomUUID();
+    const providerReference = "test_" + crypto.randomUUID();
 
     const pixCode = generatePixCode({
       amount: data.amount,
     });
 
     return {
-      providerQrCodeId,
+      providerReference,
       pixCode,
     };
   }

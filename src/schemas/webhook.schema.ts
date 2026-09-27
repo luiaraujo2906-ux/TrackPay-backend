@@ -3,7 +3,7 @@ import { z } from "zod";
 import { paymentStatusSchema } from "./payment.schema";
 
 export const paymentWebhookSchema = z.object({
-  providerQrCodeId: z.string().min(1),
+  providerReference: z.string().min(1),
   status: paymentStatusSchema,
 });
 
@@ -20,6 +20,6 @@ export const asaasWebhookSchema = z.object({
 });
 
 export const fakeWebhookSchema = z.object({
-  providerQrCodeId: z.string().min(1),
+  providerReference: z.string().min(1),
   status: paymentStatusSchema,
 });

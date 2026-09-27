@@ -39,7 +39,7 @@ export async function createPixPayment(data: CreatePaymentData) {
     amount: data.amount,
     status: "PENDING",
     pixCode: providerPayment.pixCode,
-    providerQrCodeId: providerPayment.providerQrCodeId,
+    providerReference: providerPayment.providerReference,
   };
 
   await paymentRepository.createPayment(paymentData);

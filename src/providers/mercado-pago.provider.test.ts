@@ -37,7 +37,7 @@ describe("MercadoPagoPaymentProvider", () => {
     });
 
     expect(result).toEqual({
-      providerQrCodeId: "123456",
+      providerReference: "123456",
       pixCode: "pix-code-123",
     });
   });

@@ -37,7 +37,7 @@ describe("AsaasPaymentProvider", () => {
     const result = await provider.createPayment(fakePayload);
 
     expect(result).toEqual({
-      providerQrCodeId: "qr_123",
+      providerReference: "qr_123",
       pixCode: "000201010212268...",
     });
 

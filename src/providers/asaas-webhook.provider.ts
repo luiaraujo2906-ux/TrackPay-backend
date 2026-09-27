@@ -22,7 +22,7 @@ export class AsaasWebhookProvider implements WebhookProvider {
     }
 
     return {
-      providerQrCodeId: payment.pixQrCodeId,
+      providerReference: payment.pixQrCodeId,
       status: "PAID",
     };
   }

@@ -17,7 +17,7 @@ describe("AsaasWebhookProvider", () => {
     });
 
     expect(result).toEqual({
-      providerQrCodeId: "qr_456",
+      providerReference: "qr_456",
       status: "PAID",
     });
   });

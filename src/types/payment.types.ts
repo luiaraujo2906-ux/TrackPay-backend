@@ -8,7 +8,7 @@ export interface CreatePayment {
   amount: number;
   status: PaymentStatus;
   pixCode: string;
-  providerQrCodeId: string;
+  providerReference: string;
 }
 
 export interface Payment extends CreatePayment {
@@ -21,6 +21,6 @@ export interface CreatePaymentData {
 }
 
 export interface PaymentWebhookData {
-  providerQrCodeId: string;
+  providerReference: string;
   status: PaymentStatus;
 }

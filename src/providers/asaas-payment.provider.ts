@@ -66,7 +66,7 @@ export class AsaasPaymentProvider implements PaymentProvider {
     });
 
     return {
-      providerQrCodeId: qrCode.id,
+      providerReference: qrCode.id,
       pixCode: qrCode.payload,
     };
   }

@@ -7,12 +7,12 @@ describe("FakeWebhookProvider", () => {
 
   it("should convert a valid webhook payload", () => {
     const result = provider.parseWebhook({
-      providerQrCodeId: "qr_123",
+      providerReference: "qr_123",
       status: "PAID",
     });
 
     expect(result).toEqual({
-      providerQrCodeId: "qr_123",
+      providerReference: "qr_123",
       status: "PAID",
     });
   });
@@ -20,7 +20,7 @@ describe("FakeWebhookProvider", () => {
   it("should reject an invalid webhook payload", () => {
     expect(() =>
       provider.parseWebhook({
-        providerQrCodeId: "",
+        providerReference: "",
         status: "INVALID_STATUS",
       }),
     ).toThrow("Invalid webhook payload");

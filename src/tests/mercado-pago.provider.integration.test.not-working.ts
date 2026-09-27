@@ -12,8 +12,8 @@ describe("MercadoPagoPaymentProvider integration", () => {
 
     console.log(result);
 
-    expect(result.providerQrCodeId).toBeDefined();
-    expect(result.providerQrCodeId).not.toBe("");
+    expect(result.providerReference).toBeDefined();
+    expect(result.providerReference).not.toBe("");
 
     expect(result.pixCode).toBeDefined();
     expect(result.pixCode).not.toBe("");

@@ -14,7 +14,7 @@ describe.skipIf(!shouldRunAsaasTests)(
         amount: 50,
       });
 
-      expect(result.providerQrCodeId).toBeDefined();
+      expect(result.providerReference).toBeDefined();
       expect(result.pixCode).toBeDefined();
     });
   },

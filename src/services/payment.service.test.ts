@@ -50,7 +50,7 @@ describe("createPixPayment", () => {
 
     expect(result.amount).toBe(50);
     expect(result.status).toBe("PENDING");
-    expect(result.providerQrCodeId).toBeDefined();
+    expect(result.providerReference).toBeDefined();
     expect(result.pixCode).toBeDefined();
     expect(result.qrCode).toBeDefined();
 
@@ -58,7 +58,7 @@ describe("createPixPayment", () => {
       expect.objectContaining({
         amount: 50,
         status: "PENDING",
-        providerQrCodeId: result.providerQrCodeId,
+        providerReference: result.providerReference,
         pixCode: result.pixCode,
       }),
     );

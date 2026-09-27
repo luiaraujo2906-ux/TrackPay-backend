@@ -14,7 +14,7 @@ export interface CreatePayment {
   amount: number;
   status: PaymentStatus;
   pixCode: string;
-  providerQrCodeId: string;
+  providerReference: string;
 }
 
 export interface Payment extends CreatePayment {
@@ -27,7 +27,7 @@ export interface CreatePaymentData {
 }
 
 export interface PaymentWebhookData {
-  providerQrCodeId: string;
+  providerReference: string;
   status: PaymentStatus;
 }
 ```
@@ -36,7 +36,7 @@ export interface PaymentWebhookData {
 
 - Removeu completamente o domínio `payer`
 - Removeu `providerPaymentId` do domínio
-- Introduziu `providerQrCodeId` como identificador do QR Code estático gerado pelo provedor
+- Introduziu `providerReference` como identificador do QR Code estático gerado pelo provedor
 
 ---
 
@@ -68,7 +68,7 @@ export const createPaymentSchema = z
 ```ts
 export interface PaymentProvider {
   createPayment(data: CreatePaymentData): Promise<{
-    providerQrCodeId: string;
+    providerReference: string;
     pixCode: string;
   }>;
 }
@@ -77,7 +77,7 @@ export interface PaymentProvider {
 ### O que mudou
 
 - O contrato agora passou a receber apenas `amount`
-- O retorno passou a usar `providerQrCodeId` em vez de `providerPaymentId`
+- O retorno passou a usar `providerReference` em vez de `providerPaymentId`
 - Mantém a abstração do provider sem regras específicas do Asaas
 
 ---
@@ -99,7 +99,7 @@ export async function createPixPayment(data: CreatePaymentData) {
     amount: data.amount,
     status: "PENDING",
     pixCode: providerPayment.pixCode,
-    providerQrCodeId: providerPayment.providerQrCodeId,
+    providerReference: providerPayment.providerReference,
   };
 
   await paymentRepository.createPayment(paymentData);
@@ -170,7 +170,7 @@ export class AsaasPaymentProvider implements PaymentProvider {
     });
 
     return {
-      providerQrCodeId: qrCode.id,
+      providerReference: qrCode.id,
       pixCode: qrCode.payload,
     };
   }
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS payments (
     amount DECIMAL(10, 2) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     pix_code TEXT NOT NULL,
-    provider_qr_code_id VARCHAR(100) NULL,
+    provider_reference VARCHAR(100) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -213,7 +213,7 @@ export async function createPayment(payment: CreatePayment): Promise<void> {
     `
       INSERT INTO payments (
         id,
-        provider_qr_code_id,
+        provider_reference,
         amount,
         status,
         pix_code
@@ -222,7 +222,7 @@ export async function createPayment(payment: CreatePayment): Promise<void> {
     `,
     [
       payment.id,
-      payment.providerQrCodeId,
+      payment.providerReference,
       payment.amount,
       payment.status,
       payment.pixCode,
@@ -230,8 +230,8 @@ export async function createPayment(payment: CreatePayment): Promise<void> {
   );
 }
 
-export async function findPaymentByProviderQrCodeId(
-  providerQrCodeId: string,
+export async function findPaymentByProviderReference(
+  providerReference: string,
 ): Promise<Payment | null> {
   const [rows] = await db.execute(
     `
@@ -240,13 +240,13 @@ export async function findPaymentByProviderQrCodeId(
         amount,
         status,
         pix_code AS pixCode,
-        provider_qr_code_id AS providerQrCodeId,
+        provider_reference AS providerReference,
         created_at AS createdAt,
         updated_at AS updatedAt
       FROM payments
-      WHERE provider_qr_code_id = ?
+      WHERE provider_reference = ?
     `,
-    [providerQrCodeId],
+    [providerReference],
   );
 
   const payments = rows as Payment[];
@@ -257,7 +257,7 @@ export async function findPaymentByProviderQrCodeId(
 
 ### O que mudou
 
-- Renomeou a coluna de persistência para `provider_qr_code_id`
+- Renomeou a coluna de persistência para `provider_reference`
 - Atualizou os SELECT/INSERT/lookup por identificador do QR Code estático
 - Mantém a semântica correta para o novo fluxo
 
@@ -277,16 +277,16 @@ export class AsaasWebhookProvider implements WebhookProvider {
     }
 
     const payment = result.data.payment;
-    const providerQrCodeId =
+    const providerReference =
       payment.qrCodeId ?? payment.pixQrCode?.id ?? payment.id;
 
     if (
       result.data.event === "PAYMENT_RECEIVED" &&
       payment.status === "RECEIVED" &&
-      providerQrCodeId
+      providerReference
     ) {
       return {
-        providerQrCodeId,
+        providerReference,
         status: "PAID",
       };
     }
@@ -300,8 +300,8 @@ export class AsaasWebhookProvider implements WebhookProvider {
 
 ```ts
 export async function processPaymentWebhook(data: PaymentWebhookData) {
-  const payment = await paymentRepository.findPaymentByProviderQrCodeId(
-    data.providerQrCodeId,
+  const payment = await paymentRepository.findPaymentByProviderReference(
+    data.providerReference,
   );
 
   if (!payment) {
@@ -319,7 +319,7 @@ export async function processPaymentWebhook(data: PaymentWebhookData) {
 ### O que mudou
 
 - O webhook não mais procura por `providerPaymentId`
-- Busca o pagamento pelo `providerQrCodeId`
+- Busca o pagamento pelo `providerReference`
 - Mantém a abstração do webhook dentro do provider e não espalha regra do Asaas no service
 
 ---
@@ -348,14 +348,14 @@ PIX_CITY=
 ```ts
 export class FakePaymentProvider implements PaymentProvider {
   async createPayment(data: CreatePaymentData) {
-    const providerQrCodeId = crypto.randomUUID();
+    const providerReference = "test_" + crypto.randomUUID();
 
     const pixCode = generatePixCode({
       amount: data.amount,
     });
 
     return {
-      providerQrCodeId,
+      providerReference,
       pixCode,
     };
   }
@@ -404,7 +404,7 @@ POST /payments/pix
 
 → TrackPay gera paymentId
 → PaymentProvider cria QR Code Pix estático
-→ salva providerQrCodeId + pixCode
+→ salva providerReference + pixCode
 → retorna QR Code para o cliente
 → webhook do Asaas é mapeado para o QR Code estático
 → status atualiza PENDING → PAID
