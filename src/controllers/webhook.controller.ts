@@ -6,11 +6,12 @@ import { processPaymentWebhook } from "../services/webhook.service";
 const webhookProvider = createWebhookProvider();
 
 export async function handlePaymentWebhook(req: Request, res: Response) {
+  console.log("webhhook recebido:");
+  console.log(req.body);
   try {
     const webhookData = webhookProvider.parseWebhook(req.body);
 
     await processPaymentWebhook(webhookData);
-
     return res.sendStatus(200);
   } catch (error) {
     if (error instanceof Error && error.message === "Invalid webhook payload") {
