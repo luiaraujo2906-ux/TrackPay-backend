@@ -1,5 +1,6 @@
 import * as paymentRepository from "../repositories/payment.repository";
 import { canTransitionPaymentStatus } from "./payment.service";
+import { emitPaymentStatus } from "./socket.service";
 
 import type { PaymentWebhookData } from "../types/payment.types";
 
@@ -17,4 +18,5 @@ export async function processPaymentWebhook(data: PaymentWebhookData) {
   }
 
   await paymentRepository.updatePaymentStatus(payment.id, data.status);
+  emitPaymentStatus(payment.id, data.status);
 }

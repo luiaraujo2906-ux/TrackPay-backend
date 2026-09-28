@@ -20,6 +20,7 @@
     "mercadopago": "^3.6.1",
     "mysql2": "^3.24.4",
     "qrcode": "^1.5.4",
+    "socket.io": "^4.8.4",
     "zod": "^4.6.5"
   },
   "devDependencies": {

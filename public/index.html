@@ -4,6 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
 
     <title>Pix API Test</title>
 
@@ -133,6 +134,25 @@
 
           const data = await response.json();
           console.log("data", data);
+
+          const socket = io("http://localhost:3000");
+
+          socket.on("connect", () => {
+            console.log("Socket conectado:", socket.id);
+
+            socket.emit("payment.subscribe", {
+              paymentId: data.id,
+            });
+          });
+
+          socket.on("payment.subscribed", (data) => {
+            console.log("Inscrito no pagamento:", data);
+          });
+
+          socket.on("payment.status.updated", (data) => {
+            console.log("Pagamento atualizado:", data);
+            responseElement.innerHTML = `<h2 style="color: green;">✓ Pagamento confirmado!</p>`;
+          });
 
           responseElement.innerHTML = `
             <div><strong>Status:</strong> ${data.status}</div>

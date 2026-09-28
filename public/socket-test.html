@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TrackPay Socket.IO Test</title>
+  </head>
+
+  <body>
+    <h1>TrackPay Socket.IO</h1>
+
+    <p id="connection-status">Conectando...</p>
+    <p id="subscription-status">Não inscrito</p>
+    <p id="payment-status">Aguardando pagamento...</p>
+
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+    <script>
+      const paymentId = "payment-123";
+
+      const socket = io("http://localhost:3000");
+
+      const connectionStatus = document.getElementById("connection-status");
+
+      const subscriptionStatus = document.getElementById("subscription-status");
+
+      const paymentStatus = document.getElementById("payment-status");
+
+      socket.on("connect", () => {
+        connectionStatus.textContent = `Conectado: ${socket.id}`;
+
+        socket.emit("payment.subscribe", {
+          paymentId,
+        });
+      });
+
+      socket.on("payment.subscribed", (data) => {
+        subscriptionStatus.textContent = `Inscrito no pagamento: ${data.paymentId}`;
+      });
+
+      socket.on("payment.status.updated", (data) => {
+        console.log("Pagamento atualizado:", data);
+
+        paymentStatus.textContent = `Status: ${data.status}`;
+      });
+
+      socket.on("disconnect", () => {
+        connectionStatus.textContent = "Desconectado";
+      });
+    </script>
+  </body>
+</html>
