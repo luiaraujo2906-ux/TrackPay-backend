@@ -1,8 +1,42 @@
-# TrackPay
+# TrackPay Payments API
 
-TrackPay é um backend de pagamentos Pix desenvolvido em Node.js + TypeScript, com foco em demonstrar um fluxo real de criação, persistência e confirmação de cobranças Pix.
+A **Payments API do TrackPay** é o serviço responsável pelo processamento e acompanhamento dos pagamentos dentro do ecossistema TrackPay.
 
-O projeto utiliza Express para expor a API REST, MySQL para persistir os pagamentos, Zod para validação de payloads, Vitest para testes e Socket.IO para notificar o frontend em tempo real. A integração atual é com o Asaas como PSP (provedor de serviços de pagamento), e o fluxo de pagamento pode ser testado de forma prática por meio do frontend de demonstração em `public/demo`.
+O TrackPay é concebido como um copiloto inteligente para motoristas de aplicativo, com funcionalidades como registro de corridas e rotas, cálculo de distâncias, controle de consumo, manutenção do veículo, gastos e organização financeira. Este repositório representa uma parte específica desse ecossistema: **a infraestrutura de pagamentos**.
+
+A API foi desenvolvida em Node.js + TypeScript e atualmente concentra o fluxo de criação e confirmação de cobranças Pix. Ela permite gerar uma cobrança, persistir seus dados, receber a confirmação do PSP por webhook e notificar clientes em tempo real sobre mudanças no status do pagamento.
+
+A integração atual utiliza o Asaas como PSP (provedor de serviços de pagamento). O fluxo pode ser testado de forma prática por meio do frontend de demonstração localizado em `public/demo`.
+
+> **Escopo deste repositório:** pagamentos. Funcionalidades como rastreamento de rotas, registro de distâncias, manutenção, consumo, despesas e demais recursos do copiloto do motorista fazem parte do produto TrackPay, mas não são responsabilidades deste serviço.
+
+## Papel dentro do ecossistema TrackPay
+
+O TrackPay é o produto maior. A Payments API existe para resolver especificamente o domínio de pagamentos.
+
+Uma visão simplificada do ecossistema é:
+
+```text
+TrackPay
+│
+├── Aplicação do motorista
+│   ├── Corridas
+│   ├── Rastreamento e rotas
+│   ├── Distâncias
+│   ├── Veículo
+│   ├── Manutenção
+│   ├── Gastos
+│   └── Organização financeira
+│
+└── Payments API
+    ├── Criação de cobranças Pix
+    ├── QR Code Pix
+    ├── Webhooks
+    ├── Status de pagamento
+    └── Notificações em tempo real
+```
+
+Uma corrida do TrackPay poderá futuramente utilizar este serviço para gerar uma cobrança com base na distância percorrida, utilizar um valor informado pelo motorista e manter a referência entre corrida e pagamento. Essa integração pertence ao domínio maior do TrackPay e não transforma este repositório em um sistema de rastreamento.
 
 ## Funcionalidades atuais
 
@@ -24,12 +58,12 @@ O sistema já implementa, no estado atual do código, as seguintes capacidades:
 
 ## Arquitetura
 
-A arquitetura do projeto é simples e direta:
+A arquitetura deste serviço é simples e direta:
 
 ```text
-Frontend de demonstração
+Cliente / aplicação do TrackPay
         ↓
-API REST (Express)
+Payments API (Express)
         ↓
 Services
         ↓
@@ -131,7 +165,7 @@ Clone o projeto e instale as dependências:
 
 ```bash
 git clone <url-do-repositorio>
-cd trackpay
+cd trackpay-payments-api
 npm install
 ```
 
@@ -477,7 +511,7 @@ Algumas boas práticas importantes para o projeto:
 
 ## Limitações atuais
 
-O projeto é funcional como demonstração e protótipo, mas ainda possui algumas limitações honestas:
+O projeto é funcional como demonstração e protótipo da camada de pagamentos, mas ainda possui algumas limitações honestas:
 
 - Autenticação de usuários não implementada.
 - Autorização por perfil/role não implementada.
@@ -491,7 +525,7 @@ O projeto é funcional como demonstração e protótipo, mas ainda possui alguma
 
 ## Possíveis evoluções futuras
 
-Algumas evoluções possíveis para o projeto, dependendo de requisitos técnicos, regulatórios e comerciais:
+As evoluções abaixo estão relacionadas ao domínio de pagamentos e à integração desta API com o restante do ecossistema TrackPay, dependendo de requisitos técnicos, regulatórios e comerciais:
 
 - Autenticação e autorização.
 - Contas de usuários.
@@ -500,6 +534,8 @@ Algumas evoluções possíveis para o projeto, dependendo de requisitos técnico
 - Reconciliação de transações.
 - Idempotência de webhooks.
 - Histórico detalhado de pagamentos.
+- Associação explícita entre pagamentos e corridas do TrackPay.
+- Criação de cobranças a partir do valor calculado por uma corrida.
 - Estorno e cancelamento de cobranças.
 - Expiração e gestão de cobranças.
 - Suporte a mais PSPs.
@@ -533,7 +569,7 @@ Para colaborar com o projeto:
 
 ```bash
 git clone <url-do-repositorio>
-cd trackpay
+cd trackpay-payments-api
 git checkout -b minha-feature
 # faça alterações
 npm test
@@ -547,6 +583,24 @@ Depois, abra um Pull Request com uma descrição clara do que foi alterado e por
 ## Licença
 
 Nenhuma licença foi definida explicitamente no projeto no momento. Consulte o repositório para confirmar o status atual antes de usar o código em produção ou em um ambiente compartilhado.
+
+## Relação com o projeto TrackPay
+
+Este repositório não representa o TrackPay completo. Ele representa a **API de pagamentos do TrackPay**.
+
+O aplicativo principal do motorista será responsável por recursos como:
+
+- Registro e acompanhamento de corridas.
+- Coleta e processamento de localização.
+- Cálculo de distância percorrida.
+- Histórico de rotas.
+- Controle de consumo.
+- Planejamento e histórico de manutenções.
+- Controle de gastos do veículo.
+- Organização financeira.
+- Integração com a Payments API quando uma corrida precisar gerar uma cobrança.
+
+A Payments API deve permanecer focada em responsabilidades próprias do domínio de pagamentos, evitando transformar este serviço em um backend monolítico com todas as funcionalidades do produto.
 
 ## Observações importantes
 
